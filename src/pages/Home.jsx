@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Post } from "../components/Post";
 import { TagsBlock } from "../components/TagsBlock";
 import {
+  fetchAllTags,
   fetchPopularPosts,
   fetchPosts,
   fetchTags,
@@ -13,6 +14,7 @@ import {
 import { Box, Typography } from "@mui/material";
 import { getPostComments } from "../redax/slices/comment";
 import { CommentsBlock } from "../components/CommentsBlock";
+import { useLocation, useParams } from "react-router-dom";
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -20,19 +22,14 @@ export const Home = () => {
   const userData = useSelector((state) => state.auth.data);
   const { posts, tags, popularPosts } = useSelector((state) => state.posts);
   const { comments } = useSelector((state) => state.comments);
-  console.log("userData", userData);
+  const { tag } = useParams();
+  console.log("tag", tag);
+  const location = useLocation();
   const isPostsLoading = posts.status === "loading";
   const isTagsLoading = tags.status === "loading";
   // const isCommentsLoading = comments.status === "loading";
 
-  React.useEffect(() => {
-    dispatch(fetchPosts());
-    dispatch(fetchPopularPosts());
-    dispatch(fetchTags());
-    // dispatch(getPostComments());
-  }, [dispatch]);
-
-  const commentCount = comments.items.length;
+  // const commentsCount = comments.items.length;
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -60,7 +57,24 @@ export const Home = () => {
   const handleChange = (_event, newValue) => {
     setValue(newValue);
   };
+  // const commentCount = (postId) => {
+  //   let count = 0;
+  //   console.log("comments.items :>> ", comments.items);
+  //   comments.items.forEach((comment) => {
+  //     if (comment.postId === postId) {
+  //       count++;
+  //     }
+  //   });
+  //   return count;
+  // };
 
+  React.useEffect(() => {
+    dispatch(fetchPosts());
+    dispatch(fetchPopularPosts());
+    dispatch(fetchTags());
+    // dispatch(fetchAllTags());
+    // dispatch(getPostComments());
+  }, []);
   return (
     <>
       <Tabs
@@ -75,7 +89,12 @@ export const Home = () => {
       <TabPanel value={value} index={0}>
         <Grid container spacing={4}>
           <Grid xs={8} item>
-            {(isPostsLoading ? [...Array(5)] : posts.items).map((obj, index) =>
+            {(isPostsLoading
+              ? [...Array(5)]
+              : tag
+              ? posts.items.filter((obj) => obj?.tags.includes(tag))
+              : posts.items
+            ).map((obj, index) =>
               isPostsLoading ? (
                 <Post key={index} isLoading={true} />
               ) : (
@@ -86,9 +105,12 @@ export const Home = () => {
                     obj.imageUrl ? `http://localhost:4444${obj.imageUrl}` : ""
                   }
                   user={obj.user}
-                  createdAt={obj.createdAt}
+                  createdAt={obj.createdAt
+                    .substring(0, obj.createdAt.lastIndexOf(".") - 3)
+                    .replace(/-/g, "/")
+                    .replace(/T/g, " ")}
                   viewsCount={obj.viewsCount}
-                  commentsCount={obj.commentsCount}
+                  commentsCount={obj.comments.length}
                   tags={obj.tags}
                   isEditable={userData?._id === obj.user._id}
                 />
@@ -122,7 +144,7 @@ export const Home = () => {
                     user={obj.user}
                     createdAt={obj.createdAt}
                     viewsCount={obj.viewsCount}
-                    commentsCount={obj.commentsCount}
+                    commentsCount={obj.comments.length}
                     tags={obj.tags}
                     isEditable={userData?._id === obj.user._id}
                   />

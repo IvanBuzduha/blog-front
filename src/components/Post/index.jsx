@@ -20,6 +20,7 @@ export const Post = ({
   imageUrl,
   user,
   viewsCount,
+  commentsCount,
   tags,
   children,
   isFullPost,
@@ -31,9 +32,9 @@ export const Post = ({
   if (isLoading) {
     return <PostSkeleton />;
   }
-
-  const commentsCount = comments.items.length;
-  console.log("commentINPOST :>> ", comments.items?.length);
+  // const commentsCount = comments.items.length;
+  // console.log("commentsCount", commentsCount);
+  // console.log("title :>> ", title);
   const onClickRemove = () => {
     if (window.confirm("Are you sure you want to remove article?")) {
       dispatch(fetchRemovePost(id));

@@ -11,21 +11,27 @@ import { fireEvent } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectIsAuth } from "../../redax/slices/auth";
 import { createComment, getPostComments } from "../../redax/slices/comment";
-
-export const AddComment = () => {
+import { useForm } from "react-hook-form";
+export const AddComment = (props) => {
   const { id } = useParams();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  // const isEditing = Boolean(id);
-  const [data, setData] = React.useState("");
+
   const [comment, setComment] = React.useState("");
   const [isLoading, setLoading] = React.useState(false);
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      comment: "",
+    },
+    mode: "onChange",
+  });
+
+  console.log("regisetr:>>", register);
 
   const onSubmit = async () => {
     try {
       setLoading(true);
       const fields = { comment };
       await axios.post(`/comments/${id}`, fields);
+      // props.addComment(fields);
       setComment("");
     } catch (err) {
       console.warn(err);
@@ -50,20 +56,21 @@ export const AddComment = () => {
           classes={{ root: styles.avatar }}          
           // src="https://mui.com/static/images/avatar/5.jpg"
         /> */}
-      <div className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <TextField
           label="Write a comment"
           variant="outlined"
           maxRows={10}
           value={comment}
+          // {...register("comment")}
           onChange={(e) => setComment(e.target.value)}
           multiline
           fullWidth
         />
-        <Button type="submit" onClick={onSubmit} variant="contained">
+        <Button type="submit" variant="contained">
           Send
         </Button>
-      </div>
+      </form>
       {/* </div> */}
     </>
   );

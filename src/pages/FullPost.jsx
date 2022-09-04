@@ -20,7 +20,7 @@ export const FullPost = () => {
   const { id } = useParams();
   // console.log("state", this.state.first);
   // console.log("setData :>> ", setData);
-  // console.log("comments :>> ", comments.items);
+  console.log("comments :>> ", comments.items.length);
   React.useEffect(() => {
     axios
       .get(`/posts/${id}`)
@@ -50,7 +50,7 @@ export const FullPost = () => {
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}
-        commentsCount={data.commentsCount}
+        commentsCount={comments.items.length}
         tags={data.tags}
         isFullPost
       >
